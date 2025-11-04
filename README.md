@@ -10,21 +10,11 @@
 
 <br>
 
-<!-- 
-*******************************************************************
-** ACTION REQUISE **
-REMPLACEZ CE COMMENTAIRE PAR UN GIF OU UNE CAPTURE D'ÉCRAN
-DE HAUTE QUALITÉ DE LA PAGE D'ACCUEIL DE VOTRE PROJET.
-UN VISUEL EST LE MEILLEUR MOYEN D'ATTIRER L'ATTENTION !
-Exemple : ![Démo du Projet](./assets/demo.gif)
-******************************************************************* 
--->
+<p align="center">
+  <img src="Animation.gif" alt="Démo Animée du Projet" />
+</p>
 
-## 🚀 Démo Live
-
-Explorez les visualisations directement dans votre navigateur sans aucune installation requise.
-
-### **[ accéder à la démo en direct ](https://med-gh-tn.github.io/TSP/)**
+### <p align="center">[🚀 Accéder à la Démo Live](https://med-gh-tn.github.io/TSP/)</p>
 
 <br>
 
