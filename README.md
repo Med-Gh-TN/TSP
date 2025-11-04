@@ -88,3 +88,19 @@ Pour exécuter les scripts Python ou le Jupyter Notebook, vous aurez besoin de P
 ## Structure des Fichiers
 
 Le dépôt est organisé pour séparer clairement les visualiseurs de leur code source correspondant.
+.
+├── index.html # La page d'accueil principale
+├── Animation.gif # La démo animée du projet
+├── Algorithmes Génétiques Rang.html # Visualiseur pour AG (Rang)
+├── ... (autres fichiers html et py)
+├── TSP.ipynb # Jupyter Notebook avec tous les algorithmes
+└── README.md # Vous êtes ici !
+## Auteur
+
+**Mouhamed Gharsallah**
+
+-   GitHub : [@Med-Gh-TN](https://github.com/Med-Gh-TN)
+
+## Licence
+
+Distribué sous la licence Apache 2.0. Voir le fichier `LICENSE` dans le dépôt pour plus d'informations.
