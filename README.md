@@ -96,6 +96,8 @@ Le dépôt est organisé pour séparer clairement les visualiseurs de leur code 
 ├── ...                       # (autres fichiers html et py)
 ├── TSP.ipynb                 # Jupyter Notebook avec tous les algorithmes
 └── README.md                 # Vous êtes ici !
+
+
 ## Auteur
 
 **Mouhamed Gharsallah**
