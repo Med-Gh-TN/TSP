@@ -90,12 +90,12 @@ Pour exécuter les scripts Python ou le Jupyter Notebook, vous aurez besoin de P
 Le dépôt est organisé pour séparer clairement les visualiseurs de leur code source correspondant.
 .
 
-├── index.html # La page d'accueil principale
-├── Animation.gif # La démo animée du projet
+├── index.html                # La page d'accueil principale
+├── Animation.gif             # La démo animée du projet
 ├── Algorithmes Génétiques Rang.html # Visualiseur pour AG (Rang)
-├── ... (autres fichiers html et py)
-├── TSP.ipynb # Jupyter Notebook avec tous les algorithmes
-└── README.md # Vous êtes ici !
+├── ...                       # (autres fichiers html et py)
+├── TSP.ipynb                 # Jupyter Notebook avec tous les algorithmes
+└── README.md                 # Vous êtes ici !
 ## Auteur
 
 **Mouhamed Gharsallah**
