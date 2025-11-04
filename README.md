@@ -1,6 +1,7 @@
 # Problème du Voyageur de Commerce - Visualiseurs de Métaheuristiques
 
 ![Statut du Projet](https://img.shields.io/badge/statut-terminé-brightgreen)
+[![Voir la Démo](https://img.shields.io/badge/Voir_la_Démo-2ea44f?style=for-the-badge&logo=githubpages)](https://med-gh-tn.github.io/TSP/)
 ![Langages](https://img.shields.io/github/languages/top/Med-Gh-TN/TSP?color=0071e3)
 ![Licence](https://img.shields.io/badge/licence-MIT-blue)
 ![Étoiles GitHub](https://img.shields.io/github/stars/Med-Gh-TN/TSP?style=social)
@@ -19,12 +20,20 @@ Exemple : ![Démo du Projet](./assets/demo.gif)
 ******************************************************************* 
 -->
 
+## 🚀 Démo Live
+
+Explorez les visualisations directement dans votre navigateur sans aucune installation requise.
+
+### **[ accéder à la démo en direct ](https://med-gh-tn.github.io/TSP/)**
+
+<br>
+
 ## Table des Matières
 
 - [À Propos du Projet](#à-propos-du-projet)
 - [Fonctionnalités Clés](#fonctionnalités-clés)
 - [Technologies Utilisées](#technologies-utilisées)
-- [Pour Commencer](#pour-commencer)
+- [Pour Commencer (Usage Local)](#pour-commencer-usage-local)
   - [Prérequis](#prérequis)
   - [Installation](#installation)
 - [Utilisation](#utilisation)
@@ -55,7 +64,7 @@ Ce projet s'appuie sur des technologies web modernes pour l'interface et sur Pyt
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
-## Pour Commencer
+## Pour Commencer (Usage Local)
 
 Pour obtenir une copie locale et la faire fonctionner, suivez ces étapes simples.
 
@@ -77,14 +86,14 @@ Pour exécuter les scripts Python ou le Jupyter Notebook, vous aurez besoin de P
     cd TSP
     ```
 
-C'est tout ! Vous êtes prêt.
-
 ## Utilisation
 
-1.  **Ouvrez `index.html`** dans votre navigateur web pour voir la page d'accueil du projet.
-2.  **Sélectionnez un algorithme** en cliquant sur le bouton `Lancer la Simulation` sur sa carte.
-3.  **Démarrez la simulation** sur la page de l'algorithme en cliquant sur "Commencer".
-4.  **Explorez le code** en cliquant sur le lien `Voir le code (.py)` sur n'importe quelle carte pour télécharger le script spécifique, ou téléchargez le notebook complet `TSP.ipynb` depuis la page principale.
+1.  **En ligne (recommandé) :** Accédez simplement à la **[démo en direct](https://med-gh-tn.github.io/TSP/)**.
+2.  **Localement :**
+    -   Ouvrez `index.html` dans votre navigateur web pour voir la page d'accueil du projet.
+    -   Sélectionnez un algorithme en cliquant sur le bouton `Lancer la Simulation`.
+    -   Démarrez la simulation sur la page de l'algorithme en cliquant sur "Commencer".
+3.  **Code Source :** Explorez le code en cliquant sur le lien `Voir le code (.py)` sur n'importe quelle carte pour télécharger le script spécifique, ou téléchargez le notebook complet `TSP.ipynb` depuis la page principale.
 
 ## Structure des Fichiers
 
