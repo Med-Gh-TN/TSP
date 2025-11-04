@@ -33,9 +33,9 @@
 
 ## À Propos du Projet
 
-Le Problème du Voyageur de Commerce (PVC) est un défi algorithmique classique : étant donné une liste de villes, quel est le plus court chemin possible qui visite chaque ville exactement une fois et revient à la ville d'origine ?
+Le Problème du Voyageur de Commerce (TSP) est un défi algorithmique classique : étant donné une liste de villes, quel est le plus court chemin possible qui visite chaque ville exactement une fois et revient à la ville d'origine ?
 
-Ce projet offre une exploration visuelle et pratique de quatre approches métaheuristiques différentes pour résoudre le PVC. Au lieu de simplement lire sur le fonctionnement de ces algorithmes complexes, vous pouvez les voir "réfléchir" en temps réel alors qu'ils recherchent itérativement la solution optimale. Il est conçu comme un outil pédagogique pour les étudiants, les développeurs et toute personne intéressée par les algorithmes d'optimisation.
+Ce projet offre une exploration visuelle et pratique de quatre approches métaheuristiques différentes pour résoudre le TSP. Au lieu de simplement lire sur le fonctionnement de ces algorithmes complexes, vous pouvez les voir "réfléchir" en temps réel alors qu'ils recherchent itérativement la solution optimale. Il est conçu comme un outil pédagogique pour les étudiants, les développeurs et toute personne intéressée par les algorithmes d'optimisation.
 
 ## Fonctionnalités Clés
 
