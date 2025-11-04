@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problème du Voyageur de Commerce: Algorithme Tabou</title>
+    
+    <!-- Google Fonts for a premium feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Prism.js for code highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+
+    <style>
+        /* --- FINAL "CRIMSON TECH" THEME & ALL STYLES --- */
+        
+        :root {
+            --bg-gradient-start: #262626;
+            --bg-gradient-end: #171717;
+            --accent-primary: #DC2626;   /* Crimson Red */
+            --accent-white: #FFFFFF;
+            --accent-gray: #9CA3AF;
+            --text-primary: #FFFFFF;
+            --text-secondary: #a1a1a6;
+            --glass-bg: rgba(220, 38, 38, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --font-stack: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --border-radius: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-stack);
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-gradient-end);
+            background-image: radial-gradient(circle at top left, var(--bg-gradient-start), var(--bg-gradient-end));
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        header { text-align: center; padding: 3rem 1rem; }
+        header h1 { font-size: 2.5rem; font-weight: 700; }
+        main { max-width: 1600px; margin: 1rem auto; padding: 0 2rem; }
+        section { padding: 2.5rem; margin-bottom: 3rem; }
+        h2 { color: var(--text-primary); margin-bottom: 0.5rem; text-align: center; font-weight: 600; font-size: 2rem; }
+        .subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+        #demo .demo-container { display: flex; gap: 2.5rem; flex-wrap: wrap; align-items: flex-start; }
+        #demo .canvas-wrapper { flex: 1.5; min-width: 500px; }
+        #demo .controls-wrapper { flex: 1; min-width: 350px; }
+        
+        #tspCanvas {
+            width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            background-color: rgba(0, 0, 0, 0.2);
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), 
+                linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        #best-solution-panel.new-best { background: rgba(255, 255, 255, 0.9); color: #111; }
+        #best-solution-panel.new-best h4 { color: #111; }
+        #best-solution-panel.new-best span { color: #171717; }
+
+        .panel h4 { font-weight: 500; color: var(--text-secondary); margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; }
+        .panel span { font-family: 'Menlo', 'Fira Code', monospace; font-size: 1.1rem; word-wrap: break-word; color: var(--text-primary); font-weight: 500; }
+        .panel p { margin-top: 0.5rem; }
+        
+        #tabu-list-panel ul { list-style: none; padding-left: 0; font-family: 'Menlo', 'Fira Code', monospace; font-size: 0.9rem; max-height: 100px; overflow-y: auto; color: var(--text-secondary); }
+
+        .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+        .button-group button { width: 100%; padding: 1rem; font-size: 1rem; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        #next-step-btn { background: var(--accent-primary); color: white; }
+        #restart-btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary); }
+        .button-group button:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+        .button-group button:disabled { background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        #code-mapping { background: transparent; }
+        #code-mapping .code-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        pre[class*="language-"] { border: 1px solid var(--glass-border) !important; border-radius: var(--border-radius) !important; background: rgba(0,0,0,0.2) !important; transition: all 0.3s ease !important; }
+        pre[class*="language-"].highlight { border-color: var(--accent-primary) !important; transform: scale(1.02); box-shadow: 0 5px 25px rgba(220, 38, 38, 0.2); }
+
+        @media (max-width: 1200px) { #demo .demo-container { flex-direction: column; } }
+        @media (max-width: 900px) { #code-mapping .code-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Problème du Voyageur de Commerce</h1>
+        <p class="subtitle" style="font-size: 1.2rem; max-width: 800px;">Découvrez comment la Recherche Tabou résout des problèmes complexes avec une mémoire intelligente.</p>
+    </header>
+
+    <main>
+        <section id="demo">
+            <div class="demo-container">
+                <div class="canvas-wrapper">
+                    <canvas id="tspCanvas" width="600" height="450"></canvas>
+                </div>
+                <div class="controls-wrapper">
+                    <div class="panel" id="status-panel">
+                        <h4>Progression de l'Algorithme</h4>
+                        <p id="step-description">Cliquez sur "Commencer" pour lancer la simulation.</p>
+                    </div>
+
+                    <div class="panel" id="current-solution-panel">
+                        <h4>Solution Actuelle</h4>
+                        <span id="current-path">N/A</span>
+                        <p>Distance: <span id="current-distance">-</span></p>
+                    </div>
+
+                    <div class="panel" id="best-solution-panel">
+                        <h4>Meilleure Solution Trouvée</h4>
+                        <span id="best-path">N/A</span>
+                        <p>Distance: <span id="best-distance">-</span></p>
+                    </div>
+
+                    <!-- RESTORED: Tabu List Panel -->
+                    <div class="panel" id="tabu-list-panel">
+                        <h4>Liste Tabou (Mémoire)</h4>
+                        <ul id="tabu-list">
+                            <li>(vide)</li>
+                        </ul>
+                    </div>
+
+                    <div class="button-group">
+                        <button id="restart-btn">Recommencer</button>
+                        <button id="next-step-btn">Commencer</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="code-mapping">
+            <h2>Du Concept au Code Python</h2>
+            <p class="subtitle">Chaque action de l'animation correspond à un bloc de code. Le bloc responsable de l'étape actuelle est mis en surbrillance.</p>
+            
+            <div class="code-container">
+                <pre id="code-init"><code class="language-python">
+# 1. Initialiser
+# Commencer avec une solution aléatoire
+solution_actuelle = list(range(nombre_villes))
+random.shuffle(solution_actuelle)
+
+# La meilleure solution est la solution de départ
+meilleure_solution = solution_actuelle[:]
+
+# La liste tabou (mémoire) est vide
+tabu_list = deque(maxlen=taille_tabu)
+                </code></pre>
+                
+                <pre id="code-neighbors"><code class="language-python">
+# 2. Générer le Voisinage
+def generer_voisins(solution):
+    """Génère toutes les solutions voisines
+    en échangeant chaque paire de villes."""
+    voisins = []
+    for i in range(len(solution)):
+        for j in range(i + 1, len(solution)):
+            voisin = solution[:]
+            voisin[i], voisin[j] = voisin[j], voisin[i]
+            voisins.append(voisin)
+    return voisins
+                </code></pre>
+
+                <pre id="code-selection"><code class="language-python">
+# 3. Sélectionner le Meilleur Voisin
+# Filtrer les voisins qui sont dans la liste tabou
+voisins = [v for v in voisins if tuple(v) not in tabu_list]
+
+# Sélectionner le meilleur voisin parmi les non-tabous
+meilleur_voisin = min(voisins, key=lambda v: ...)
+
+# Mettre à jour la solution actuelle
+solution_actuelle = meilleur_voisin
+                </code></pre>
+                
+                <pre id="code-update"><code class="language-python">
+# 4. Mettre à jour la Mémoire et le Meilleur Global
+# Ajouter la nouvelle solution à la liste tabou
+tabu_list.append(tuple(solution_actuelle))
+
+# Mettre à jour la meilleure solution globale si nécessaire
+if distance_actuelle < meilleure_distance:
+    meilleure_solution = solution_actuelle[:]
+    meilleure_distance = distance_actuelle
+                </code></pre>
+            </div>
+        </section>
+    </main>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- CONFIGURATION & DATA ---
+            const canvas = document.getElementById('tspCanvas');
+            const ctx = canvas.getContext('2d');
+            const matrice_distances = [
+                [0, 2, 7, 15, 2, 5, 7, 6, 6, 5], [2, 0, 10, 4, 7, 3, 7, 15, 8, 2],
+                [2, 10, 0, 1, 4, 3, 3, 4, 2, 3], [7, 4, 1, 0, 2, 15, 7, 7, 5, 4],
+                [7, 10, 4, 2, 0, 7, 3, 2, 2, 7], [2, 3, 3, 7, 7, 0, 1, 7, 2, 10],
+                [5, 7, 3, 7, 3, 1, 0, 2, 1, 3], [7, 7, 4, 7, 2, 7, 2, 0, 1, 10],
+                [6, 8, 2, 5, 2, 2, 1, 1, 0, 15], [5, 2, 3, 4, 7, 10, 3, 10, 15, 0]
+            ];
+            const cityCoords = [
+                { x: 100, y: 50 }, { x: 500, y: 80 }, { x: 80, y: 150 }, { x: 200, y: 180 },
+                { x: 300, y: 250 }, { x: 50, y: 320 }, { x: 180, y: 350 }, { x: 350, y: 100 },
+                { x: 450, y: 300 }, { x: 550, y: 200 }
+            ];
+            const vibrantPathColors = ['#FFFFFF', '#9CA3AF'];
+            
+            // --- UI ELEMENTS ---
+            const nextStepBtn = document.getElementById('next-step-btn');
+            const restartBtn = document.getElementById('restart-btn');
+            const stepDescriptionEl = document.getElementById('step-description');
+            const currentPathEl = document.getElementById('current-path');
+            const currentDistanceEl = document.getElementById('current-distance');
+            const bestPathEl = document.getElementById('best-path');
+            const bestDistanceEl = document.getElementById('best-distance');
+            const tabuListEl = document.getElementById('tabu-list'); // RESTORED
+            const bestSolutionPanel = document.getElementById('best-solution-panel');
+            const allCodeBlocks = document.querySelectorAll('#code-mapping pre');
+
+            // --- STATE MANAGEMENT ---
+            let currentStep = -1;
+            let story;
+
+            // --- HELPER & STORY FUNCTIONS ---
+            function calculateDistance(solution) {
+                let distance = 0;
+                for (let i = 0; i < solution.length; i++) {
+                    distance += matrice_distances[solution[i]][solution[(i + 1) % solution.length]];
+                }
+                return distance;
+            }
+
+            // ENHANCED NARRATIVE FOR TABU SEARCH
+            function generateStory() {
+                const steps = [];
+                let initialSolution = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+                let bestSolution = [...initialSolution];
+                
+                steps.push({ 
+                    description: "Tout commence avec un chemin initial, choisi au hasard. Sa distance est élevée, nous servant de point de départ à améliorer.",
+                    currentSolution: [...initialSolution], 
+                    bestSolution: [...bestSolution], 
+                    tabuList: [],
+                    codeBlockId: 'code-init', 
+                    newBest: true 
+                });
+                
+                let step2Solution = [0, 5, 2, 3, 4, 1, 6, 7, 8, 9];
+                steps.push({
+                    description: "L'algorithme génère tous les 'voisins' possibles en échangeant deux villes. Il choisit le meilleur voisin, même s'il n'est pas le meilleur global, pour explorer la zone.",
+                    currentSolution: [...step2Solution], 
+                    bestSolution: [...step2Solution], 
+                    tabuList: [step2Solution],
+                    codeBlockId: 'code-neighbors', 
+                    newBest: true
+                });
+
+                let step3Solution = [0, 5, 8, 3, 4, 1, 6, 7, 2, 9];
+                steps.push({
+                    description: "Le mouvement précédent est ajouté à la 'Liste Tabou'. Cela agit comme une mémoire à court terme, empêchant l'algorithme de revenir immédiatement en arrière et de se retrouver coincé.",
+                    currentSolution: [...step3Solution], 
+                    bestSolution: [...step2Solution], 
+                    tabuList: [step2Solution, step3Solution],
+                    codeBlockId: 'code-selection', 
+                    newBest: false
+                });
+                
+                let step4Solution = [6, 5, 8, 3, 4, 1, 0, 7, 2, 9];
+                steps.push({
+                    description: "L'algorithme continue sa recherche, en sélectionnant le meilleur voisin qui n'est pas interdit par la liste tabou. Un nouveau record global est trouvé et sauvegardé !",
+                    currentSolution: [...step4Solution], 
+                    bestSolution: [...step4Solution], 
+                    tabuList: [step2Solution, step3Solution, step4Solution],
+                    codeBlockId: 'code-update', 
+                    newBest: true
+                });
+                
+                let finalSolution = [2, 3, 4, 7, 8, 6, 5, 0, 1, 9];
+                steps.push({
+                    description: "FIN ! Après de nombreuses itérations, en explorant intelligemment et en utilisant sa mémoire pour éviter les cycles, l'algorithme a convergé vers cette solution hautement optimisée.",
+                    currentSolution: [...finalSolution],
+                    bestSolution: [...finalSolution],
+                    tabuList: [step3Solution, step4Solution, finalSolution],
+                    codeBlockId: null,
+                    newBest: true
+                });
+
+                return steps;
+            }
+
+            // --- VISUALIZATION FUNCTIONS ---
+            function drawPath(solution, color = '#FFFFFF', lineWidth = 2) {
+                if (!solution || solution.length === 0) return;
+                ctx.beginPath();
+                ctx.moveTo(cityCoords[solution[0]].x, cityCoords[solution[0]].y);
+                for (let i = 1; i < solution.length; i++) { ctx.lineTo(cityCoords[solution[i]].x, cityCoords[solution[i]].y); }
+                ctx.lineTo(cityCoords[solution[0]].x, cityCoords[solution[0]].y);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = lineWidth;
+                ctx.stroke();
+            }
+            
+            function drawCityNodes() {
+                 cityCoords.forEach((coord) => {
+                    ctx.beginPath();
+                    ctx.arc(coord.x, coord.y, 12, 0, Math.PI * 2);
+                    ctx.fillStyle = '#171717';
+                    ctx.strokeStyle = '#DC2626'; 
+                    ctx.lineWidth = 3; 
+                    ctx.fill();
+                    ctx.stroke();
+                });
+            }
+            
+            function drawCityText() {
+                 cityCoords.forEach((coord, i) => {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = 'bold 14px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(i, coord.x, coord.y);
+                });
+            }
+
+            function highlightCodeBlock(id) {
+                allCodeBlocks.forEach(block => block.classList.remove('highlight'));
+                if (id) { document.getElementById(id).classList.add('highlight'); }
+            }
+            
+            function updateUI(step) {
+                stepDescriptionEl.textContent = step.description;
+                const currentDist = calculateDistance(step.currentSolution);
+                const bestDist = calculateDistance(step.bestSolution);
+                currentPathEl.textContent = `[${step.currentSolution.join(', ')}]`;
+                currentDistanceEl.textContent = currentDist;
+                bestPathEl.textContent = `[${step.bestSolution.join(', ')}]`;
+                bestDistanceEl.textContent = bestDist;
+                
+                tabuListEl.innerHTML = ''; // Update Tabu List
+                if (step.tabuList.length > 0) {
+                    step.tabuList.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = `[${item.join(', ')}]`;
+                        tabuListEl.appendChild(li);
+                    });
+                } else {
+                    tabuListEl.innerHTML = '<li>(vide)</li>';
+                }
+
+                bestSolutionPanel.classList.remove('new-best');
+                if (step.newBest) { setTimeout(() => bestSolutionPanel.classList.add('new-best'), 50); }
+
+                highlightCodeBlock(step.codeBlockId);
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const dynamicColor = vibrantPathColors[currentStep % vibrantPathColors.length];
+                drawPath(step.bestSolution, 'rgba(220, 38, 38, 0.5)', 2);
+                drawPath(step.currentSolution, dynamicColor, 3.5);
+                drawCityNodes();
+                drawCityText();
+            }
+
+            function resetAnimation() {
+                currentStep = -1;
+                story = null;
+                nextStepBtn.disabled = false;
+                nextStepBtn.textContent = 'Commencer';
+                stepDescriptionEl.textContent = 'Cliquez sur "Commencer" pour lancer la simulation.';
+                currentPathEl.textContent = 'N/A';
+                currentDistanceEl.textContent = '-';
+                bestPathEl.textContent = 'N/A';
+                bestDistanceEl.textContent = '-';
+                tabuListEl.innerHTML = '<li>(vide)</li>'; // Reset Tabu list
+                bestSolutionPanel.classList.remove('new-best');
+                highlightCodeBlock(null);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawCityNodes();
+                drawCityText();
+            }
+
+            // --- EVENT LISTENERS ---
+            nextStepBtn.addEventListener('click', () => {
+                if (currentStep === -1) {
+                    story = generateStory();
+                    nextStepBtn.textContent = 'Étape Suivante >';
+                }
+                currentStep++;
+                if (currentStep < story.length) {
+                    updateUI(story[currentStep]);
+                }
+                if (currentStep >= story.length - 1) {
+                    nextStepBtn.textContent = 'Terminé !';
+                    nextStepBtn.disabled = true;
+                }
+            });
+
+            restartBtn.addEventListener('click', resetAnimation);
+
+            // --- INITIALIZATION ---
+            resetAnimation();
+        });
+    </script>
+</body>
+</html>
