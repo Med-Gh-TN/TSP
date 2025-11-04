@@ -5,37 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Problème du Voyageur de Commerce</title>
     <style>
+        /* --- Register Custom Property for Smooth Animation --- */
+        @property --angle {
+            syntax: '<angle>';
+            inherits: false;
+            initial-value: 0deg;
+        }
+
         /* --- Global Styles & Resets --- */
         :root {
-            --background-color: #000000;
-            --card-background-color: #1a1a1c;
+            --background-color: #0d0d0f;
+            --card-background-color: rgb(20, 20, 22); /* Dark background for cards */
             --text-color-primary: #f5f5f7;
             --text-color-secondary: #a1a1a6;
-            --border-color: #333333;
 
-            /* --- Main Accent Color (for non-card elements) --- */
-            --accent-color-main: #0071e3;
-            --accent-color-main-hover: #0077ed;
-
-            /* --- New Theme Colors for Cards --- */
+            /* --- Theme Colors for Cards & Aurora --- */
             --theme-gold: #FBBF24;
-            --theme-gold-hover: #fcd34d;
             --theme-green: #00FFAB;
-            --theme-green-hover: #34ffbe;
             --theme-cyan: #06B6D4;
-            --theme-cyan-hover: #22d3ee;
             --theme-red: #DC2626;
-            --theme-red-hover: #ef4444;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
+            --accent-color-main: #0071e3;
         }
 
         body {
@@ -43,335 +32,243 @@
             color: var(--text-color-primary);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
             overflow-x: hidden;
-        }
-
-        /* --- Animations & Transitions --- */
-        @keyframes heroFadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* --- Layout & Containers --- */
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* --- Header / Hero Section --- */
-        .hero {
-            text-align: center;
-            padding: 120px 0 80px 0;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-            margin-bottom: 16px;
-            /* Premium Enhancement: Gradient Text */
-            background: linear-gradient(45deg, #e0e0e0, #ffffff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-fill-color: transparent;
-            animation: heroFadeInUp 0.8s ease-out;
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            color: var(--text-color-secondary);
-            max-width: 680px;
-            margin: 0 auto;
-            line-height: 1.5;
-            animation: heroFadeInUp 0.8s ease-out 0.2s;
-            animation-fill-mode: backwards; /* Ensures it starts hidden */
-        }
-        
-        /* --- Algorithm Showcase Section --- */
-        .showcase-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            padding: 40px 0;
-        }
-
-        .algo-card {
-            background-color: var(--card-background-color);
-            border-radius: 18px;
-            padding: 30px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
             position: relative;
+        }
+        
+        /* --- Interactive Parallax Background ("Apple Effect") --- */
+        .aurora-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
             overflow: hidden;
-            /* Premium Enhancement: Staggered Entry Animation Setup */
+            transition: transform 0.5s ease-out;
+            transform: translate(calc(var(--mouse-x-norm, 0) * -25px), calc(var(--mouse-y-norm, 0) * -25px));
+        }
+
+        .aurora-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.5;
+            will-change: transform;
+        }
+
+        .shape1 { background: var(--theme-gold); width: 500px; height: 500px; top: -10%; left: 0%; animation: move1 25s infinite alternate; }
+        .shape2 { background: var(--theme-cyan); width: 600px; height: 600px; top: 10%; left: 50%; animation: move2 30s infinite alternate; }
+        .shape3 { background: var(--theme-red); width: 450px; height: 450px; top: 60%; left: -10%; animation: move3 28s infinite alternate; }
+        .shape4 { background: var(--theme-green); width: 550px; height: 550px; top: 50%; left: 60%; animation: move4 22s infinite alternate; }
+
+        @keyframes move1 { to { transform: translate(100px, 250px); } }
+        @keyframes move2 { to { transform: translate(-150px, -200px); } }
+        @keyframes move3 { to { transform: translate(200px, -150px); } }
+        @keyframes move4 { to { transform: translate(-250px, 100px); } }
+
+        /* --- Directional Scroll-In Animations --- */
+        .animated-card {
             opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-            transition-delay: calc(var(--delay) * 100ms);
+            will-change: transform, opacity;
         }
-
-        .algo-card.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .algo-card h2 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 25px;
-            margin-top: 15px; /* Space for icon */
-        }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         
-        .card-actions {
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-
-        /* Premium Enhancement: Iconography */
-        .card-icon {
-            width: 32px;
-            height: 32px;
-            margin-bottom: 10px;
-            transition: fill 0.3s ease;
-        }
-        .card-icon svg {
-            width: 100%;
-            height: 100%;
-            fill: var(--text-color-secondary);
-        }
-        .algo-card:hover .card-icon svg {
-            fill: var(--accent-color); /* Themed color will be set below */
-        }
+        .slide-in-left { animation: slideInLeft 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .slide-in-right { animation: slideInRight 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
         
-        /* --- Buttons & Links --- */
-        .btn {
-            display: inline-block;
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 500;
-            border-radius: 980px;
-            padding: 12px 24px;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            cursor: pointer;
-            border: none;
-            color: #000; /* Dark text for light buttons */
-        }
+        /* --- General Layout --- */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 2; }
+        .hero { text-align: center; padding: 120px 0 80px 0; }
+        .hero h1 { font-size: 3.5rem; font-weight: 700; margin-bottom: 16px; background: linear-gradient(45deg, #e0e0e0, #ffffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.3rem; color: var(--text-color-secondary); max-width: 680px; margin: 0 auto; line-height: 1.5; }
+        .showcase-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; padding: 40px 0; }
         
-        .link-secondary {
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1rem;
-            transition: opacity 0.3s ease;
-        }
-        
-        .link-secondary:hover {
-            opacity: 0.8;
-            text-decoration: underline;
-        }
-        
-        /* --- New Card Theme Styling --- */
-        /* Theme 1: Genetic (Rank) - Liquid Gold */
-        .algo-card.theme-1 { --accent-color: var(--theme-gold); --accent-color-hover: var(--theme-gold-hover); }
-        .algo-card.theme-1:hover { border-color: var(--theme-gold); box-shadow: 0 0 25px -5px rgba(251, 191, 36, 0.4); }
-        
-        /* Theme 2: Genetic (Roulette) - Bioluminescent Forest */
-        .algo-card.theme-2 { --accent-color: var(--theme-green); --accent-color-hover: var(--theme-green-hover); }
-        .algo-card.theme-2:hover { border-color: var(--theme-green); box-shadow: 0 0 25px -5px rgba(0, 255, 171, 0.4); }
 
-        /* Theme 3: Simulated Annealing - Argon Glow */
-        .algo-card.theme-3 { --accent-color: var(--theme-cyan); --accent-color-hover: var(--theme-cyan-hover); }
-        .algo-card.theme-3 .btn { color: white; } /* Better contrast for cyan */
-        .algo-card.theme-3:hover { border-color: var(--theme-cyan); box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.4); }
-
-        /* Theme 4: Tabu Search - Crimson Tech */
-        .algo-card.theme-4 { --accent-color: var(--theme-red); --accent-color-hover: var(--theme-red-hover); }
-        .algo-card.theme-4 .btn { color: white; } /* Better contrast for red */
-        .algo-card.theme-4:hover { border-color: var(--theme-red); box-shadow: 0 0 25px -5px rgba(220, 38, 38, 0.4); }
-
-        /* Applying the dynamic theme colors from variables */
-        .algo-card .btn { background-color: var(--accent-color); }
-        .algo-card .btn:hover { background-color: var(--accent-color-hover); }
-        .algo-card .link-secondary { color: var(--accent-color); }
-
-
-        /* --- Source Code Section --- */
-        .source-code-section {
-            background-color: var(--card-background-color);
-            border-radius: 18px;
-            text-align: center;
-            padding: 60px 40px;
-            margin: 80px 0;
-            border: 1px solid var(--border-color);
-            /* Staggered animation setup */
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-        .source-code-section.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .source-code-section h2 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        
-        .source-code-section p {
-            color: var(--text-color-secondary);
-            max-width: 600px;
-            margin: 0 auto 30px auto;
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-        
-        .source-code-section .btn {
-            background-color: var(--accent-color-main);
-            color: white;
-        }
-        .source-code-section .btn:hover {
-            background-color: var(--accent-color-main-hover);
-        }
-
-        /* --- Footer --- */
-        .site-footer {
-            text-align: center;
-            padding: 40px 20px;
-            margin-top: 60px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-color-secondary);
-            font-size: 0.9rem;
-        }
-
-        /* --- Responsive Design --- */
-        @media (max-width: 900px) {
-            .showcase-grid {
-                grid-template-columns: 1fr;
+        /* --- 1. NEW - Internet Border Line Animation --- */
+        @keyframes rotate-gradient {
+            100% {
+                transform: rotate(1turn);
             }
         }
+
+        .glass-card {
+            position: relative;
+            z-index: 1;
+            padding: 2px; /* This padding creates the space for the border */
+            border-radius: 18px;
+            background: var(--card-background-color); /* Set the card background here */
+            border: none; /* Remove the original border */
+            transition: transform 0.4s ease;
+            overflow: hidden; /* Important: hides the parts of the gradient outside the border */
+        }
         
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            z-index: -2;
+            left: -50%;
+            top: -50%;
+            width: 200%;
+            height: 200%;
+            background-color: transparent;
+            /* The conic gradient creates the colors that will be rotated */
+            background-image: conic-gradient(
+                var(--accent-color), 
+                #3b82f6, /* Adding a second color for a nicer gradient */
+                transparent, 
+                transparent
+            );
+            animation: rotate-gradient 4s linear infinite;
+        }
+
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            z-index: -1;
+            left: 2px; /* Must match the padding */
+            top: 2px;  /* Must match the padding */
+            width: calc(100% - 4px); /* (padding * 2) */
+            height: calc(100% - 4px); /* (padding * 2) */
+            background: var(--card-background-color); /* This covers the gradient, leaving only the "border" */
+            border-radius: 16px; /* Slightly less than the parent's border-radius */
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .algo-card { padding: 30px; display: flex; flex-direction: column; justify-content: space-between; background: transparent; }
+        
+        /* Theme classes just need to set the accent color now */
+        .theme-1 { --accent-color: var(--theme-gold); }
+        .theme-2 { --accent-color: var(--theme-green); }
+        .theme-3 { --accent-color: var(--theme-cyan); }
+        .theme-4 { --accent-color: var(--theme-red); }
+        .source-code-section { --accent-color: var(--accent-color-main); }
+        
+        .source-code-section { text-align: center; padding: 60px 40px; margin: 80px 0; background: transparent; }
+
+        .card-content, .card-actions { position: relative; z-index: 2; }
+        .algo-card h2 { font-size: 1.8rem; font-weight: 600; margin-bottom: 25px; margin-top: 15px; }
+        .card-actions { margin-top: auto; display: flex; flex-direction: column; align-items: flex-start; gap: 15px; }
+        .card-icon { width: 32px; height: 32px; margin-bottom: 10px; }
+        .card-icon svg { width: 100%; height: 100%; fill: var(--text-color-secondary); transition: fill 0.3s ease; }
+        .algo-card:hover .card-icon svg { fill: var(--accent-color); }
+        .btn { display: inline-block; text-decoration: none; font-size: 1rem; font-weight: 500; border-radius: 980px; padding: 12px 24px; transition: all 0.3s ease; cursor: pointer; border: none; }
+        .link-secondary { text-decoration: none; font-weight: 500; font-size: 1rem; transition: opacity 0.3s ease; }
+        .link-secondary:hover { opacity: 0.8; text-decoration: underline; }
+        
+        .algo-card .btn { background-color: var(--accent-color); }
+        .theme-1 .btn, .theme-2 .btn { color: #000; }
+        .theme-3 .btn, .theme-4 .btn { color: #fff; }
+        .algo-card .btn:hover { filter: brightness(1.1); transform: scale(1.05); }
+        .algo-card .link-secondary { color: var(--accent-color); }
+        
+        .source-code-section h2 { font-size: 2.5rem; font-weight: 600; margin-bottom: 16px; }
+        .source-code-section p { color: var(--text-color-secondary); max-width: 600px; margin: 0 auto 30px auto; font-size: 1.1rem; line-height: 1.6; }
+        .source-code-section .btn { background-color: var(--accent-color-main); color: white; }
+        .source-code-section .btn:hover { background-color: #0077ed; }
+
+        .site-footer { text-align: center; padding: 40px 20px; margin-top: 60px; color: var(--text-color-secondary); font-size: 0.9rem; }
+        .site-footer .container { border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 40px; }
+        
+        @media (max-width: 900px) { .showcase-grid { grid-template-columns: 1fr; } }
         @media (max-width: 600px) {
             .hero h1 { font-size: 2.5rem; }
             .hero p { font-size: 1.1rem; }
-            .algo-card h2 { font-size: 1.5rem; }
-            .source-code-section h2 { font-size: 2rem; }
+            .aurora-shape { filter: blur(80px); }
         }
     </style>
 </head>
 <body>
 
-    <header class="hero container">
+    <div class="aurora-background">
+        <div class="aurora-shape shape1"></div>
+        <div class="aurora-shape shape2"></div>
+        <div class="aurora-shape shape3"></div>
+        <div class="aurora-shape shape4"></div>
+    </div>
+
+    <header class="hero container animated-card" data-animation="fade-in-up">
         <h1>Problème du Voyageur de Commerce</h1>
         <p>Une exploration de solutions métaheuristiques. Découvrez et comparez quatre approches algorithmiques pour résoudre le célèbre problème du voyageur de commerce.</p>
     </header>
 
     <main class="container">
-        
         <section class="showcase-grid">
-            
-            <article class="algo-card theme-1" style="--delay: 1;">
-                <div>
-                    <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11.605 13.014a2.502 2.502 0 0 0-3.328-2.02l-1.065.533a3.502 3.502 0 0 1-4.659-2.828l-.133-.664a3.502 3.502 0 0 1 2.828-4.659l.664-.133a3.502 3.502 0 0 1 4.659 2.828l.102.512a2.5 2.5 0 0 0 3.328 2.02l1.065-.533a3.5 3.5 0 0 1 4.658 2.828l.134.664a3.5 3.5 0 0 1-2.828 4.658l-.664.134a3.5 3.5 0 0 1-4.658-2.828l-.103-.512zm-4.242 4.242a2.5 2.5 0 0 0 2.02 3.328l.512.103a3.5 3.5 0 0 1 2.828 4.658l-.134.664a3.5 3.5 0 0 1-4.658 2.828l-.664-.134a3.5 3.5 0 0 1-2.828-4.658l.133-.664a3.5 3.5 0 0 1 2.828-4.659l.533-1.065a2.5 2.5 0 0 0-2.02-3.328l-.512-.102a3.5 3.5 0 0 1-2.828-4.659l.134-.664a3.5 3.5 0 0 1 4.658-2.828l.664.133a3.5 3.5 0 0 1 2.828 4.659l-.133.664a3.5 3.5 0 0 1-2.828 4.659l-.533 1.065z"/></svg>
-                    </div>
+            <article class="glass-card algo-card theme-1 animated-card" data-animation="slide-in-left">
+                <div class="card-content">
+                    <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11.605 13.014a2.502 2.502 0 0 0-3.328-2.02l-1.065.533a3.502 3.502 0 0 1-4.659-2.828l-.133-.664a3.502 3.502 0 0 1 2.828-4.659l.664-.133a3.502 3.502 0 0 1 4.659 2.828l.102.512a2.5 2.5 0 0 0 3.328 2.02l1.065-.533a3.5 3.5 0 0 1 4.658 2.828l.134.664a3.5 3.5 0 0 1-2.828 4.658l-.664.134a3.5 3.5 0 0 1-4.658-2.828l-.103-.512zm-4.242 4.242a2.5 2.5 0 0 0 2.02 3.328l.512.103a3.5 3.5 0 0 1 2.828 4.658l-.134.664a3.5 3.5 0 0 1-4.658 2.828l-.664-.134a3.5 3.5 0 0 1-2.828-4.658l.133-.664a3.5 3.5 0 0 1 2.828-4.659l.533-1.065a2.5 2.5 0 0 0-2.02-3.328l-.512-.102a3.5 3.5 0 0 1-2.828-4.659l.134-.664a3.5 3.5 0 0 1 4.658-2.828l.664.133a3.5 3.5 0 0 1 2.828 4.659l-.133.664a3.5 3.5 0 0 1-2.828 4.659l-.533 1.065z"/></svg></div>
                     <h2>Algorithme Génétique (Sélection par Rang)</h2>
                 </div>
-                <div class="card-actions">
-                    <a href="./Algorithmes Génétiques Rang.html" target="_blank" class="btn">Lancer la Simulation</a>
-                    <a href="./algorithme_genetique_rang.py" class="link-secondary" download>Voir le code (.py)</a>
-                </div>
+                <div class="card-actions"><a href="./Algorithmes Génétiques Rang.html" class="btn">Lancer la Simulation</a><a href="./algorithme_genetique_rang.py" class="link-secondary" download>Voir le code (.py)</a></div>
             </article>
 
-            <article class="algo-card theme-2" style="--delay: 2;">
-                <div>
-                     <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11.605 13.014a2.502 2.502 0 0 0-3.328-2.02l-1.065.533a3.502 3.502 0 0 1-4.659-2.828l-.133-.664a3.502 3.502 0 0 1 2.828-4.659l.664-.133a3.502 3.502 0 0 1 4.659 2.828l.102.512a2.5 2.5 0 0 0 3.328 2.02l1.065-.533a3.5 3.5 0 0 1 4.658 2.828l.134.664a3.5 3.5 0 0 1-2.828 4.658l-.664.134a3.5 3.5 0 0 1-4.658-2.828l-.103-.512zm-4.242 4.242a2.5 2.5 0 0 0 2.02 3.328l.512.103a3.5 3.5 0 0 1 2.828 4.658l-.134.664a3.5 3.5 0 0 1-4.658 2.828l-.664-.134a3.5 3.5 0 0 1-2.828-4.658l.133-.664a3.5 3.5 0 0 1 2.828-4.659l.533-1.065a2.5 2.5 0 0 0-2.02-3.328l-.512-.102a3.5 3.5 0 0 1-2.828-4.659l.134-.664a3.5 3.5 0 0 1 4.658-2.828l.664.133a3.5 3.5 0 0 1 2.828 4.659l-.133.664a3.5 3.5 0 0 1-2.828 4.659l-.533 1.065z"/></svg>
-                    </div>
+            <article class="glass-card algo-card theme-2 animated-card" data-animation="slide-in-right">
+                <div class="card-content">
+                     <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11.605 13.014a2.502 2.502 0 0 0-3.328-2.02l-1.065.533a3.502 3.502 0 0 1-4.659-2.828l-.133-.664a3.502 3.502 0 0 1 2.828-4.659l.664-.133a3.502 3.502 0 0 1 4.659 2.828l.102.512a2.5 2.5 0 0 0 3.328 2.02l1.065-.533a3.5 3.5 0 0 1 4.658 2.828l.134.664a3.5 3.5 0 0 1-2.828 4.658l-.664.134a3.5 3.5 0 0 1-4.658-2.828l-.103-.512zm-4.242 4.242a2.5 2.5 0 0 0 2.02 3.328l.512.103a3.5 3.5 0 0 1 2.828 4.658l-.134.664a3.5 3.5 0 0 1-4.658 2.828l-.664-.134a3.5 3.5 0 0 1-2.828-4.658l.133-.664a3.5 3.5 0 0 1 2.828-4.659l.533-1.065a2.5 2.5 0 0 0-2.02-3.328l-.512-.102a3.5 3.5 0 0 1-2.828-4.659l.134-.664a3.5 3.5 0 0 1 4.658-2.828l.664.133a3.5 3.5 0 0 1 2.828 4.659l-.133.664a3.5 3.5 0 0 1-2.828 4.659l-.533 1.065z"/></svg></div>
                     <h2>Algorithme Génétique (Sélection par Roulette)</h2>
                 </div>
-                <div class="card-actions">
-                    <a href="./Algorithmes Génétiques Roulette.html" target="_blank" class="btn">Lancer la Simulation</a>
-                    <a href="./algorithme_genetique_roulette.py" class="link-secondary" download>Voir le code (.py)</a>
-                </div>
+                <div class="card-actions"><a href="./Algorithmes Génétiques Roulette.html" class="btn">Lancer la Simulation</a><a href="./algorithme_genetique_roulette.py" class="link-secondary" download>Voir le code (.py)</a></div>
             </article>
 
-            <article class="algo-card theme-3" style="--delay: 3;">
-                <div>
-                     <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.75 2.5a.75.75 0 0 0-1.5 0V6.32a6.43 6.43 0 0 0-2.923 2.553L5.9 7.44a.75.75 0 0 0-1.06 1.06l2.434 2.434A6.473 6.473 0 0 0 9 16.5c0 3.59 2.91 6.5 6.5 6.5s6.5-2.91 6.5-6.5a6.48 6.48 0 0 0-1.805-4.426c.277-.07.56-.104.855-.104 2.21 0 4 1.79 4 4s-1.79 4-4 4a.75.75 0 0 0 0 1.5c3.038 0 5.5-2.462 5.5-5.5s-2.462-5.5-5.5-5.5c-.714 0-1.399.136-2.031.388A6.478 6.478 0 0 0 12.75 2.5zM15.5 10a5 5 0 1 1-6.195 4.805a.75.75 0 0 0 .94-1.158A3.502 3.502 0 0 0 15.5 10z"/></svg>
-                    </div>
+            <article class="glass-card algo-card theme-3 animated-card" data-animation="slide-in-left">
+                <div class="card-content">
+                     <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.75 2.5a.75.75 0 0 0-1.5 0V6.32a6.43 6.43 0 0 0-2.923 2.553L5.9 7.44a.75.75 0 0 0-1.06 1.06l2.434 2.434A6.473 6.473 0 0 0 9 16.5c0 3.59 2.91 6.5 6.5 6.5s6.5-2.91 6.5-6.5a6.48 6.48 0 0 0-1.805-4.426c.277-.07.56-.104.855-.104 2.21 0 4 1.79 4 4s-1.79 4-4 4a.75.75 0 0 0 0 1.5c3.038 0 5.5-2.462 5.5-5.5s-2.462-5.5-5.5-5.5c-.714 0-1.399.136-2.031.388A6.478 6.478 0 0 0 12.75 2.5zM15.5 10a5 5 0 1 1-6.195 4.805a.75.75 0 0 0 .94-1.158A3.502 3.502 0 0 0 15.5 10z"/></svg></div>
                     <h2>Recuit Simulé</h2>
                 </div>
-                <div class="card-actions">
-                    <a href="./Algorithmes Recuit Simulé.html" target="_blank" class="btn">Lancer la Simulation</a>
-                    <a href="./algorithme_recuit_simule.py" class="link-secondary" download>Voir le code (.py)</a>
-                </div>
+                <div class="card-actions"><a href="./Algorithmes Recuit Simulé.html" class="btn">Lancer la Simulation</a><a href="./algorithme_recuit_simule.py" class="link-secondary" download>Voir le code (.py)</a></div>
             </article>
 
-            <article class="algo-card theme-4" style="--delay: 4;">
-                 <div>
-                    <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.182 13.182a.75.75 0 0 1-1.06 1.06L12 13.06l-2.121 2.122a.75.75 0 0 1-1.06-1.06L10.939 12l-2.12-2.121a.75.75 0 1 1 1.06-1.06L12 10.939l2.121-2.12a.75.75 0 0 1 1.06 1.06L13.061 12l2.12 2.121z"/></svg>
-                    </div>
+            <article class="glass-card algo-card theme-4 animated-card" data-animation="slide-in-right">
+                 <div class="card-content">
+                    <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.182 13.182a.75.75 0 0 1-1.06 1.06L12 13.06l-2.121 2.122a.75.75 0 0 1-1.06-1.06L10.939 12l-2.12-2.121a.75.75 0 1 1 1.06-1.06L12 10.939l2.121-2.12a.75.75 0 0 1 1.06 1.06L13.061 12l2.12 2.121z"/></svg></div>
                     <h2>Recherche Tabou</h2>
                 </div>
-                <div class="card-actions">
-                    <a href="./Algorithme Tabou.html" target="_blank" class="btn">Lancer la Simulation</a>
-                    <a href="./algorithme_tabou.py" class="link-secondary" download>Voir le code (.py)</a>
-                </div>
+                <div class="card-actions"><a href="./Algorithmes Recherche Tabou.html" class="btn">Lancer la Simulation</a><a href="./algorithme_recherche_tabou.py" class="link-secondary" download>Voir le code (.py)</a></div>
             </article>
-
         </section>
 
-        <section class="source-code-section">
+        <section class="glass-card source-code-section animated-card" data-animation="fade-in-up">
             <h2>Code Source Complet</h2>
             <p>Téléchargez le notebook Jupyter contenant l'implémentation, les tests et les explications pour l'ensemble des algorithmes présentés.</p>
             <a href="./TSP.ipynb" class="btn" download>Télécharger le Notebook (.ipynb)</a>
         </section>
-
     </main>
 
     <footer class="site-footer">
-        <div class="container">
-            <p>Projet réalisé par Mouhamed Gharsallah LSI 3 TP 2-1</p>
-        </div>
+        <div class="container"><p>Projet réalisé par Med-Gh-TN</p></div>
     </footer>
 
     <script>
-        // JavaScript for scroll-triggered animations
         document.addEventListener('DOMContentLoaded', () => {
-            const animatedElements = document.querySelectorAll('.algo-card, .source-code-section');
-
+            // --- Directional Scroll-In Animations Script ---
+            const animatedElements = document.querySelectorAll('.animated-card');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target); // Animate only once
+                        const animationType = entry.target.dataset.animation;
+                        if (animationType) {
+                            entry.target.classList.add(animationType);
+                        }
+                        observer.unobserve(entry.target);
                     }
                 });
-            }, {
-                threshold: 0.1 // Trigger when 10% of the element is visible
-            });
+            }, { threshold: 0.15 });
+            animatedElements.forEach(el => { observer.observe(el); });
 
-            animatedElements.forEach(el => {
-                observer.observe(el);
+            // --- Interactive Parallax Background Script ---
+            document.body.addEventListener('mousemove', (e) => {
+                const { clientX, clientY } = e;
+                const { innerWidth, innerHeight } = window;
+                
+                const normX = (clientX / innerWidth) * 2 - 1; // -1 (left) to 1 (right)
+                const normY = (clientY / innerHeight) * 2 - 1; // -1 (top) to 1 (bottom)
+
+                document.body.style.setProperty('--mouse-x-norm', normX);
+                document.body.style.setProperty('--mouse-y-norm', normY);
             });
         });
     </script>
